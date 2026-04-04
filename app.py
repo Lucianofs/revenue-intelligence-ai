@@ -14,7 +14,10 @@ from pdf_report import gerar_pdf
 from fpdf import FPDF
 from textblob import TextBlob
 import urllib3
+import base64
 
+
+ggh
 
 
 # Esta deve ser a PRIMEIRA instrução do Streamlit no código
