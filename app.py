@@ -17,9 +17,6 @@ import urllib3
 import base64
 
 
-ggh
-
-
 # Esta deve ser a PRIMEIRA instrução do Streamlit no código
 st.set_page_config(page_title="Revenue Intelligence AI", layout="wide")
 st.set_page_config(layout="wide")
