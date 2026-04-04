@@ -125,20 +125,112 @@ with aba5:
 # 🌐 URL
 # =========================================
 with aba6:
-    url = st.text_input("Digite URL")
+    st.markdown("## 🌐 Diagnóstico Inteligente de Sites (Nível Consultoria)")
 
-    if url:
-        try:
-            r = requests.get(url, verify=False)
-            soup = BeautifulSoup(r.text, 'html.parser')
+    urls_input = st.text_area("Digite URLs (uma por linha)")
 
-            st.success("Site analisado")
+    if urls_input:
+        urls = urls_input.split("\n")
 
-            title = soup.title.string if soup.title else "Sem título"
-            st.write("Título:", title)
+        resultados = []
 
-        except:
-            st.error("Erro ao acessar URL")
+        for url in urls:
+            try:
+                r = requests.get(url.strip(), verify=False, timeout=10)
+                r.encoding = 'utf-8'
+                soup = BeautifulSoup(r.text, 'html.parser')
+
+                title = soup.title.string if soup.title else ""
+                description = soup.find("meta", attrs={"name": "description"})
+                description = description["content"] if description else ""
+
+                h1 = soup.find_all("h1")
+
+                scripts = [s.get("src") for s in soup.find_all("script") if s.get("src")]
+                usa_google = any("google" in str(s) for s in scripts)
+                usa_meta = any("facebook" in str(s) for s in scripts)
+
+                tamanho = len(r.content) / 1024
+
+                # =========================
+                # 🎯 SCORE
+                # =========================
+                score = 0
+
+                if title: score += 20
+                if description: score += 20
+                if len(h1) > 0: score += 20
+                if usa_google: score += 15
+                if usa_meta: score += 15
+                if tamanho < 2000: score += 10
+
+                resultados.append({
+                    "url": url,
+                    "score": score,
+                    "titulo": title,
+                    "description": description,
+                    "performance_kb": round(tamanho,2),
+                    "google": usa_google,
+                    "meta": usa_meta
+                })
+
+            except:
+                st.error(f"Erro em: {url}")
+
+        df_sites = pd.DataFrame(resultados)
+
+        # =========================
+        # 📊 COMPARAÇÃO
+        # =========================
+        st.markdown("## 📊 Benchmark de Concorrentes")
+
+        st.dataframe(df_sites)
+
+        fig = px.bar(df_sites, x='url', y='score', color='score')
+        st.plotly_chart(fig, use_container_width=True)
+
+        # =========================
+        # 🧠 DIAGNÓSTICO AUTOMÁTICO
+        # =========================
+        melhor = df_sites.sort_values("score", ascending=False).iloc[0]
+        pior = df_sites.sort_values("score").iloc[0]
+
+        st.markdown("## 🧠 Diagnóstico Estratégico")
+
+        st.write(f"🏆 Melhor site: {melhor['url']} (Score {melhor['score']})")
+        st.write(f"⚠️ Pior site: {pior['url']} (Score {pior['score']})")
+
+        if pior['score'] < 60:
+            st.error("Site com alto risco de baixa conversão")
+
+        # =========================
+        # 💰 RELATÓRIO EXECUTIVO
+        # =========================
+        st.markdown("## 📄 Relatório Executivo")
+
+        relatorio = f"""
+        Análise comparativa de presença digital:
+
+        O site com melhor performance foi {melhor['url']} com score {melhor['score']}.
+        O site com pior desempenho foi {pior['url']} com score {pior['score']}.
+
+        Principais problemas identificados:
+        - Falta de otimização SEO
+        - Baixa performance técnica
+        - Ausência de rastreamento de marketing
+
+        Oportunidades:
+        - Melhorar velocidade do site
+        - Implementar Google Analytics e Pixel Meta
+        - Otimizar páginas para conversão
+
+        Impacto esperado:
+        - Redução de CAC
+        - Aumento de conversão
+        - Crescimento de receita
+        """
+
+        st.text_area("Relatório Gerado", relatorio, height=300)
 
 # =========================================
 # 🤖 IA / PREVISÃO + INSIGHTS
