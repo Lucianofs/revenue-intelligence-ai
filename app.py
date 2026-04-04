@@ -17,8 +17,6 @@ from fpdf import FPDF
 from textblob import TextBlob
 
 
-ttt
-
 st.set_page_config(layout="wide")
 
 # =============================
