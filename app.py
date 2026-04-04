@@ -184,35 +184,105 @@ with aba6:
         # =============================
         # 🧠 RELATÓRIO IA
         # =============================
-        def gerar_relatorio_ia(df_sites):
-            melhor = df_sites.sort_values("score", ascending=False).iloc[0]
-            pior = df_sites.sort_values("score").iloc[0]
+        def gerar_relatorio_estrategico(df_sites):
 
-            return f"""
-🏆 Melhor: {melhor['url']} (Score {melhor['score']})
-⚠️ Pior: {pior['url']} (Score {pior['score']})
+    if len(df_sites) < 2:
+        return "Adicione pelo menos 2 URLs para comparação estratégica."
 
-Problemas:
-- SEO fraco
-- Baixa conversão
-- Falta de tracking
+    melhor = df_sites.sort_values("score", ascending=False).iloc[0]
+    pior = df_sites.sort_values("score").iloc[0]
 
-Recomendações:
-- Implementar Google + Meta Pixel
-- Melhorar velocidade
-- Criar landing pages
+    relatorio = f"""
+📊 RELATÓRIO ESTRATÉGICO COMPARATIVO (NÍVEL CONSULTORIA)
+
+1. POSICIONAMENTO DE MERCADO
+
+• {melhor['url']} → Maior maturidade digital (Score {melhor['score']})
+• {pior['url']} → Menor maturidade digital (Score {pior['score']})
+
+Diagnóstico:
+Os players analisados não competem apenas em marketing,
+mas em posicionamento de valor e público-alvo.
+
+---
+
+2. ESTRATÉGIA DE CONVERSÃO
+
+O site melhor posicionado tende a:
+
+• Converter mais com menor CAC
+• Ter melhor estrutura de funil
+• Aproveitar melhor o tráfego pago
+
+Já o site inferior:
+
+• Perde clientes no meio do funil
+• Tem maior custo por aquisição
+• Desperdiça investimento em mídia
+
+---
+
+3. IMPACTO NO ROI
+
+Diferença de performance digital impacta diretamente:
+
+• ROI de campanhas
+• Taxa de conversão
+• Receita final
+
+Estimativa:
+Uma diferença de score como essa pode representar
+até 30%+ de diferença na eficiência de marketing.
+
+---
+
+4. ERROS OCULTOS (CRÍTICO)
+
+A maioria dos sites falha em:
+
+• Oferta fraca (não é problema técnico)
+• Funil ruim (abandono na reserva)
+• Posicionamento errado (atrai público errado)
+
+---
+
+5. OPORTUNIDADE ESTRATÉGICA
+
+Você não precisa competir em volume.
+
+Você pode competir em:
+
+• Ticket médio (VIP)
+• Experiência (casamento)
+• Exclusividade (premium)
+
+---
+
+6. RECOMENDAÇÃO EXECUTIVA
+
+Se o objetivo é maximizar ROI:
+
+👉 Evitar modelo de volume (baixo ticket)
+👉 Focar em alto valor (VIP / casamento)
+👉 Melhorar funil antes de escalar tráfego
+
+---
+
+7. CONCLUSÃO (VISÃO CEO)
+
+O problema não é tráfego.
+
+É:
+
+• Conversão
+• Posicionamento
+• Oferta
+
+Resolver isso pode multiplicar o faturamento
+sem aumentar investimento.
 """
 
-        relatorio = gerar_relatorio_ia(df_sites)
-
-        st.text_area("Relatório Estratégico", relatorio, height=250)
-
-        if st.button("📄 Gerar PDF"):
-            gerar_pdf(relatorio)
-
-            with open("relatorio.pdf", "rb") as f:
-                st.download_button("⬇️ Baixar PDF", f)
-
+    return relatorio
 # =============================
 # 🤖 IA
 # =============================
