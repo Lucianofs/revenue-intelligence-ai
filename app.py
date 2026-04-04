@@ -5,13 +5,19 @@ import plotly.express as px
 import time
 import re
 import requests
-from bs4 import BeautifulSoup
+import urllib3
 
+from bs4 import BeautifulSoup
 from auth import login
 from ml_models import modelo_churn, previsao_receita
 from simulador import simular_negocio
 from insights import gerar_insights
 from pdf_report import gerar_pdf
+from fpdf import FPDF
+from textblob import TextBlob
+
+
+ttt
 
 st.set_page_config(layout="wide")
 
@@ -127,115 +133,124 @@ with aba5:
     st.plotly_chart(fig)
 
 # =============================
-# 🌐 URL INTELIGENTE
-# ============================
+# 🌐 URL INTELIGENTE ABA 6
+# ============================ 
+# Desativar avisos de segurança
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 # =========================================================
-# 🌐 ENGINE DE INTELIGÊNCIA COMPETITIVA (NÍVEL MASTER)
+# 🧠 FUNÇÕES DE INTELIGÊNCIA (EPC, SENTIMENTO & AUDITORIA)
 # =========================================================
-def realizar_diagnostico_pro(url):
+
+def estimar_epc(score_conversao, ticket_medio=5000):
+    """Calcula o EPC (Earnings Per Click) - Quanto cada clique vale para o hotel."""
+    taxa_conv_est = (score_conversao / 100) * 0.02  # Média de mercado de 2% ajustada pelo score
+    epc = taxa_conv_est * ticket_medio
+    return round(epc, 2)
+
+def analisar_sentimento_texto(texto):
+    if not texto: return 0
+    analysis = TextBlob(texto)
+    return round((analysis.sentiment.polarity + 1) * 50, 2)
+
+def realizar_auditoria_master(url):
+    if not url.startswith('http'): url = 'https://' + url
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     start_time = time.time()
     
     try:
-        # 1. Performance e Acesso
-        response = requests.get(url, headers=headers, verify=False, timeout=15)
+        r = requests.get(url, headers=headers, verify=False, timeout=15)
         load_time = time.time() - start_time
-        html = response.text.lower()
-        soup = BeautifulSoup(response.text, 'html.parser')
+        html = r.text.lower()
+        soup = BeautifulSoup(r.text, 'html.parser')
         
-        # 2. Detecção de Tecnologias e Pixels (O que eles usam)
+        # Pixels e Tags
         techs = {
+            "GTM": "googletagmanager" in html,
             "Pixel Meta": "fbevents.js" in html or "://facebook.com" in html,
-            "Google Analytics 4": "gtag" in html or "ga4" in html,
-            "Google Tag Manager": "googletagmanager" in html,
-            "Hotjar (Mapa de Calor)": "hotjar" in html,
-            "WordPress": "wp-content" in html,
-            "Motor de Reserva": "omnibees" in html or "bookassist" in html or "mews" in html or "cloudbeds" in html
+            "GA4": "gtag" in html or "ga4" in html
         }
         
-        # 3. Análise de SEO e Palavras-Chave (Simulação de Autoridade)
-        h1_tags = [h.get_text().strip() for h in soup.find_all('h1')]
-        title = soup.title.string if soup.title else ""
-        links_internos = len(soup.find_all('a'))
-        
-        # 4. Score de Conversão (Baseado em Gatilhos de Venda)
-        gatilhos = ["all inclusive", "reserva", "oferta", "desconto", "promoção", "cancelamento grátis", "melhor preço"]
-        score_venda = sum(10 for g in gatilhos if g in html)
-        
+        # Gatilhos de Venda
+        gatilhos = ["oferta", "desconto", "promoção", "all inclusive", "reserva", "vip", "casamento"]
+        score_venda = sum(15 for g in gatilhos if g in html)
+        title = soup.title.string if soup.title else "Sem Título"
+
         return {
-            "url": url,
-            "status": "Ativo",
-            "tempo_carregamento": round(load_time, 2),
-            "tecnologias": [k for k, v in techs.items() if v],
-            "h1": h1_tags[0] if h1_tags else "Nenhum",
-            "score_conversao": min(score_venda, 100),
-            "autoridade_estimada": "Alta" if links_internos > 100 else "Média",
-            "pixel_ativo": techs["Pixel Meta"]
+            "URL": url,
+            "Velocidade (s)": round(load_time, 2),
+            "Score Conversão": min(score_venda + 10, 100),
+            "Sentimento de Marca": analisar_sentimento_texto(title),
+            "Pixel Ativo": "Sim" if techs["Pixel Meta"] else "Não",
+            "EPC Estimado (R$)": estimar_epc(min(score_venda + 10, 100))
         }
-    except:
-        return None
+    except: return None
+
+# =========================================================
+# 🌐 INTERFACE STREAMLIT: GLOBAL REVENUE INTELLIGENCE
+# =========================================================
 
 with aba6:
-    st.title("🚀 Intelligence Hub: Auditoria 360º")
-    st.write("Análise de Dados Públicos (Reais) + Projeções de Dados Internos (Simulados).")
+    st.title("🚀 Global Revenue Intelligence Hub")
+    st.write("Auditoria de Performance, Sentimento e **Potencial de Lucro por Clique (EPC)**.")
 
-    urls_input = st.text_area("Insira as URLs dos concorrentes (uma por linha):", "https://canabravaresort.com.br\nhttps://costadosauipe.com.br")
+    # Parâmetros de Simulação
+    with st.sidebar:
+        st.subheader("⚙️ Configurações de ROI")
+        ticket_simulacao = st.number_input("Ticket Médio do Pacote (R$):", value=5500)
+        cpc_alvo = st.number_input("Custo por Clique Médio (R$):", value=2.50)
 
-    if st.button("🔍 Iniciar Auditoria Profunda"):
+    urls_input = st.text_area("URLs para Auditoria (uma por linha):", 
+                              "https://canabravaresort.com.br\nhttps://costadosauipe.com.br")
+
+    if st.button("📡 Executar Auditoria 360º & Alertas"):
         urls = [u.strip() for u in urls_input.split("\n") if u.strip()]
-        dados_finais = []
+        resultados = []
 
         for url in urls:
-            with st.spinner(f"Analisando {url}..."):
-                res = realizar_diagnostico_pro(url)
-                if res: dados_finais.append(res)
+            with st.spinner(f"Analisando Big Data: {url}..."):
+                res = realizar_auditoria_master(url)
+                if res: 
+                    # Atualiza EPC com o ticket da simulação
+                    res["EPC Estimado (R$)"] = estimar_epc(res["Score Conversão"], ticket_simulacao)
+                    resultados.append(res)
 
-        if dados_finais:
-            df = pd.DataFrame(dados_finais)
+        if resultados:
+            df_final = pd.DataFrame(resultados)
 
-            # --- VISUALIZAÇÃO DE PERFORMANCE ---
-            st.subheader("⚡ Performance e Velocidade (Impacto no Google Ads)")
-            fig_perf = px.bar(df, x="url", y="tempo_carregamento", color="tempo_carregamento",
-                             labels={'tempo_carregamento': 'Segundos para carregar'},
-                             color_continuous_scale="RdYlGn_r")
-            st.plotly_chart(fig_perf, use_container_width=True)
-            st.info("💡 Sites que levam mais de 3s para carregar aumentam o custo do seu clique no Google em até 25%.")
+            # --- 🚨 ALERTAS DE ARBITRAGEM (QUEM ESTÁ GANHANDO DINHEIRO?) ---
+            st.subheader("🚨 Alertas de Arbitragem Financeira")
+            for _, row in df_final.iterrows():
+                # Se o EPC for maior que o CPC, a campanha é lucrativa (ROI > 1)
+                if row['EPC Estimado (R$)'] > cpc_alvo:
+                    st.success(f"✅ **Oportunidade em `{row['URL']}`:** O EPC (R$ {row['EPC Estimado (R$)']}) é maior que o CPC. Esta estrutura de site suporta escala de anúncios lucrativa.")
+                else:
+                    st.error(f"⚠️ **Risco em `{row['URL']}`:** O EPC (R$ {row['EPC Estimado (R$)']}) é menor que o CPC de R$ {cpc_alvo}. Este site está perdendo dinheiro em anúncios agora.")
 
-            # --- TABELA DE TECNOLOGIAS ---
-            st.subheader("🛠️ Tecnologias e Rastreamento Detectados")
-            st.table(df[['url', 'tecnologias', 'score_conversao', 'autoridade_estimada']])
-
-            # --- RELATÓRIO ESTRATÉGICO (O "CÉREBRO" DA IA) ---
-            st.markdown("---")
-            st.header("🧠 Relatório de Business Intelligence")
+            # --- VISUALIZAÇÃO DE BI ---
+            col1, col2 = st.columns(2)
+            with col1:
+                st.subheader("💰 Potencial de Receita por Clique (EPC)")
+                fig_epc = px.bar(df_final, x="URL", y="EPC Estimado (R$)", color="EPC Estimado (R$)", color_continuous_scale="Greens", text_auto=True)
+                st.plotly_chart(fig_epc, use_container_width=True)
             
-            for d in dados_finais:
-                with st.expander(f"Análise Estratégica: {d['url']}"):
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.markdown("**📊 Dados Públicos (Auditados)**")
-                        st.write(f"- **Velocidade:** {d['tempo_carregamento']}s ({'Excelente' if d['tempo_carregamento'] < 2 else 'Pode melhorar'})")
-                        st.write(f"- **SEO Local:** Focado em `{d['h1']}`")
-                        st.write(f"- **Anúncios Ativos:** {'Sim (Pixel Meta Detectado)' if d['pixel_ativo'] else 'Não Detectado'}")
-                        
-                        # Link para Biblioteca de Anúncios (Automatizado)
-                        domain_clean = d['url'].replace("https://", "").replace("www.", "").split("/")[0]
-                        link_ads = f"https://facebook.com{domain_clean}"
-                        st.link_button("👁️ Ver Anúncios Reais (Meta)", link_ads)
+            with col2:
+                st.subheader("❤️ Brand Sentiment vs Performance")
+                fig_scat = px.scatter(df_final, x="Velocidade (s)", y="Sentimento de Marca", size="Score Conversão", color="URL", hover_name="URL")
+                st.plotly_chart(fig_scat, use_container_width=True)
 
-                    with col2:
-                        st.markdown("**🔮 Projeção de Dados Internos (Benchmarks)**")
-                        # Projeções baseadas no seu ROI atual e média de mercado de resorts
-                        st.write(f"- **Taxa de Conversão Est.:** {round(d['score_conversao']/40, 2)}%")
-                        st.write(f"- **CAC Estimado:** R$ 150 - R$ 350")
-                        st.write(f"- **LTV Médio (Resort):** R$ 12.500,00")
-                        st.write(f"- **Origem de Receita:** 60% Orgânico / 40% Pago")
+            # --- TABELA DE DADOS ---
+            st.subheader("📋 Dashboard de Métricas Globais")
+            st.dataframe(df_final, use_container_width=True)
 
-            st.warning("⚠️ **Nota de Consultoria:** Dados como 'Comportamento no Carrinho' e 'Receita Exata' exigem acesso ao Analytics interno. As projeções acima usam modelos matemáticos baseados no Score de Conversão do site analisado.")
+            # --- ESPIONAGEM DE ADS ---
+            st.divider()
+            for url in urls:
+                clean = url.replace("https://","").replace("www.","").split("/")[0]
+                st.link_button(f"🔍 Ver Criativos Reais: {clean}", f"https://facebook.com{clean}&active_status=all&country=BR")
 
-        
+            st.success("Auditoria internacional concluída. Utilize o EPC para ajustar seus lances no Google Ads.")
+
 # =============================
 # 🤖 IA
 # =============================
