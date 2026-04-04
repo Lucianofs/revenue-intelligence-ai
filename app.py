@@ -196,6 +196,10 @@ def gerar_pdf_internacional(df, ticket, cpc):
     
     return pdf.output(dest='S').encode('latin-1', 'ignore')
 
+
+# =============================
+# 🌐 INTERDACE (DEBTRO DO WITCH ABA6)
+# ============================ 
 with aba6:
     st.title("🚀 Global Revenue Intelligence Hub")
     st.write("Auditoria de Performance, Sentimento e **Potencial de Lucro por Clique (EPC)**.")
