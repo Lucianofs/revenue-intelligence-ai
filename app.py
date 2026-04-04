@@ -206,32 +206,46 @@ with aba6:
         # =========================
         # 💰 RELATÓRIO EXECUTIVO
         # =========================
-        st.markdown("## 📄 Relatório Executivo")
+        def gerar_relatorio_ia(df_sites):
+    melhor = df_sites.sort_values("score", ascending=False).iloc[0]
+    pior = df_sites.sort_values("score").iloc[0]
 
-        relatorio = f"""
-        Análise comparativa de presença digital:
+    crescimento = ((melhor['score'] - pior['score']) / max(pior['score'],1)) * 100
 
-        O site com melhor performance foi {melhor['url']} com score {melhor['score']}.
-        O site com pior desempenho foi {pior['url']} com score {pior['score']}.
+    relatorio = f"""
+    RELATÓRIO ESTRATÉGICO DE PRESENÇA DIGITAL
 
-        Principais problemas identificados:
-        - Falta de otimização SEO
-        - Baixa performance técnica
-        - Ausência de rastreamento de marketing
+    1. VISÃO GERAL
+    Foi realizada uma análise comparativa entre os sites avaliados.
+    O melhor desempenho foi identificado em {melhor['url']} com score {melhor['score']}.
+    O pior desempenho foi identificado em {pior['url']} com score {pior['score']}.
 
-        Oportunidades:
-        - Melhorar velocidade do site
-        - Implementar Google Analytics e Pixel Meta
-        - Otimizar páginas para conversão
+    2. DIAGNÓSTICO
+    Foram identificados gargalos críticos:
+    - Baixa otimização de SEO
+    - Falta de rastreamento de marketing
+    - Performance técnica abaixo do ideal
 
-        Impacto esperado:
-        - Redução de CAC
-        - Aumento de conversão
-        - Crescimento de receita
-        """
+    3. IMPACTO NO NEGÓCIO
+    Esses problemas impactam diretamente:
+    - Aumento do CAC
+    - Redução da taxa de conversão
+    - Perda de receita potencial
 
-        st.text_area("Relatório Gerado", relatorio, height=300)
+    4. OPORTUNIDADE
+    Com otimização adequada, é possível um ganho estimado de até {round(crescimento,2)}% em performance digital.
 
+    5. RECOMENDAÇÕES
+    - Implementar tracking (Google + Meta)
+    - Otimizar velocidade do site
+    - Melhorar SEO
+    - Criar páginas de conversão
+
+    6. CONCLUSÃO
+    Existe uma oportunidade clara de crescimento com impacto direto no faturamento.
+    """
+
+    return relatorio
 # =========================================
 # 🤖 IA / PREVISÃO + INSIGHTS
 # =========================================
