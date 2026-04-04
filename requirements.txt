@@ -6,3 +6,6 @@ scikit-learn
 beautifulsoup4
 requests
 reportlab
+plyer
+fpdf
+textblob
