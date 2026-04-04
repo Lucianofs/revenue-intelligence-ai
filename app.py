@@ -9,6 +9,7 @@ from auth import login
 from ml_models import modelo_churn, previsao_receita
 from simulador import simular_negocio
 from insights import gerar_insights
+from pdf_report import gerar_pdf
 
 st.set_page_config(layout="wide")
 
@@ -125,6 +126,39 @@ with aba5:
 # 🌐 URL
 # =========================================
 with aba6:
+    relatorio_ia = gerar_relatorio_ia(df_sites)
+
+st.text_area("Relatório IA", relatorio_ia, height=300)
+
+st.markdown("## 📱 Análise de Instagram")
+
+insta_url = st.text_input("Digite URL do Instagram")
+
+if insta_url:
+    try:
+        r = requests.get(insta_url, verify=False)
+        soup = BeautifulSoup(r.text, 'html.parser')
+
+        title = soup.title.string if soup.title else ""
+
+        st.write("Perfil:", title)
+
+        if "followers" in r.text:
+            st.success("Perfil com presença ativa")
+
+        st.info("💡 Recomendações:")
+        st.write("- Melhorar frequência de posts")
+        st.write("- Usar mais vídeos (Reels)")
+        st.write("- Criar campanhas de tráfego")
+
+    except:
+        st.error("Erro ao analisar Instagram")
+
+if st.button("📄 Gerar PDF Executivo"):
+    gerar_pdf(relatorio_ia)
+
+    with open("relatorio.pdf", "rb") as f:
+        st.download_button("⬇️ Baixar PDF", f, file_name="relatorio.pdf")
     st.markdown("## 🌐 Diagnóstico Inteligente de Sites (Nível Consultoria)")
 
     urls_input = st.text_area("Digite URLs (uma por linha)")
