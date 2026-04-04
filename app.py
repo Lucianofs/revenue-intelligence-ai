@@ -132,9 +132,7 @@ with aba5:
     fig = px.pie(df, names='churn_pred')
     st.plotly_chart(fig)
 
-# =============================
-# 🌐 URL INTELIGENTE ABA 6
-# ============================ 
+
 # =============================
 # 🌐 URL INTELIGENTE ABA 6 PRO
 # ============================ 
@@ -261,9 +259,7 @@ with aba6:
                 st.link_button(f"🔎 Ver Criativos de: {clean}", link_ads)
 
             st.success("Auditoria internacional concluída com sucesso!")
-
- 
-
+            
 # =============================
 # 🤖 IA
 # =============================
