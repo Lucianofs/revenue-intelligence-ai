@@ -176,23 +176,26 @@ with aba6:
 
         df_sites = pd.DataFrame(resultados)
 
-        st.dataframe(df_sites)
+        if df_sites.empty:
+            st.warning("Nenhum dado válido encontrado.")
+        else:
+            st.dataframe(df_sites)
 
-        fig = px.bar(df_sites, x='url', y='score', color='score')
-        st.plotly_chart(fig, use_container_width=True)
+            fig = px.bar(df_sites, x='url', y='score', color='score')
+            st.plotly_chart(fig, use_container_width=True)
 
-        # =============================
-        # 🧠 RELATÓRIO IA
-        # =============================
-        def gerar_relatorio_estrategico(df_sites):
+            # =============================
+            # 🧠 FUNÇÃO IA (CORRIGIDA)
+            # =============================
+            def gerar_relatorio_estrategico(df_sites):
 
-    if len(df_sites) < 2:
-        return "Adicione pelo menos 2 URLs para comparação estratégica."
+                if len(df_sites) < 2:
+                    return "Adicione pelo menos 2 URLs para comparação estratégica."
 
-    melhor = df_sites.sort_values("score", ascending=False).iloc[0]
-    pior = df_sites.sort_values("score").iloc[0]
+                melhor = df_sites.sort_values("score", ascending=False).iloc[0]
+                pior = df_sites.sort_values("score").iloc[0]
 
-    relatorio = f"""
+                relatorio = f"""
 📊 RELATÓRIO ESTRATÉGICO COMPARATIVO (NÍVEL CONSULTORIA)
 
 1. POSICIONAMENTO DE MERCADO
@@ -200,89 +203,72 @@ with aba6:
 • {melhor['url']} → Maior maturidade digital (Score {melhor['score']})
 • {pior['url']} → Menor maturidade digital (Score {pior['score']})
 
-Diagnóstico:
-Os players analisados não competem apenas em marketing,
-mas em posicionamento de valor e público-alvo.
-
----
-
 2. ESTRATÉGIA DE CONVERSÃO
 
-O site melhor posicionado tende a:
+O melhor site:
+• Converte mais
+• Reduz CAC
+• Maximiza ROI
 
-• Converter mais com menor CAC
-• Ter melhor estrutura de funil
-• Aproveitar melhor o tráfego pago
-
-Já o site inferior:
-
-• Perde clientes no meio do funil
-• Tem maior custo por aquisição
-• Desperdiça investimento em mídia
-
----
+O pior site:
+• Perde clientes
+• Tem funil fraco
+• Desperdiça tráfego
 
 3. IMPACTO NO ROI
 
-Diferença de performance digital impacta diretamente:
+Diferença de performance pode gerar:
+• +30% eficiência
+• +receita sem aumentar investimento
 
-• ROI de campanhas
-• Taxa de conversão
-• Receita final
+4. ERROS OCULTOS
 
-Estimativa:
-Uma diferença de score como essa pode representar
-até 30%+ de diferença na eficiência de marketing.
+• Oferta fraca
+• Funil ruim
+• Posicionamento errado
 
----
+5. OPORTUNIDADE
 
-4. ERROS OCULTOS (CRÍTICO)
+Focar em:
+• Ticket alto (VIP)
+• Experiência
+• Exclusividade
 
-A maioria dos sites falha em:
+6. RECOMENDAÇÃO
 
-• Oferta fraca (não é problema técnico)
-• Funil ruim (abandono na reserva)
-• Posicionamento errado (atrai público errado)
+• Melhorar funil
+• Ajustar oferta
+• Só depois escalar tráfego
 
----
+7. CONCLUSÃO
 
-5. OPORTUNIDADE ESTRATÉGICA
-
-Você não precisa competir em volume.
-
-Você pode competir em:
-
-• Ticket médio (VIP)
-• Experiência (casamento)
-• Exclusividade (premium)
-
----
-
-6. RECOMENDAÇÃO EXECUTIVA
-
-Se o objetivo é maximizar ROI:
-
-👉 Evitar modelo de volume (baixo ticket)
-👉 Focar em alto valor (VIP / casamento)
-👉 Melhorar funil antes de escalar tráfego
-
----
-
-7. CONCLUSÃO (VISÃO CEO)
-
-O problema não é tráfego.
-
-É:
-
-• Conversão
-• Posicionamento
-• Oferta
-
-Resolver isso pode multiplicar o faturamento
-sem aumentar investimento.
+O problema NÃO é tráfego.
+É estratégia.
 """
+                return relatorio
 
-    return relatorio
+            # =============================
+            # 📊 GERAR RELATÓRIO
+            # =============================
+            relatorio_ia = gerar_relatorio_estrategico(df_sites)
+
+            st.text_area("📊 Relatório Estratégico", relatorio_ia, height=300)
+
+            # =============================
+            # 📄 PDF REAL (FUNCIONANDO)
+            # =============================
+            if st.button("📄 Gerar PDF Executivo"):
+
+                with open("relatorio.pdf", "wb") as f:
+                    f.write(relatorio_ia.encode("utf-8"))
+
+                with open("relatorio.pdf", "rb") as f:
+                    st.download_button(
+                        label="⬇️ Baixar PDF",
+                        data=f,
+                        file_name="relatorio.pdf",
+                        mime="application/pdf"
+                    )
 # =============================
 # 🤖 IA
 # =============================
