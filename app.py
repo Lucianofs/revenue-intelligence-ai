@@ -5,8 +5,6 @@ import plotly.express as px
 import time
 import re
 import requests
-import urllib3
-
 from bs4 import BeautifulSoup
 from auth import login
 from ml_models import modelo_churn, previsao_receita
@@ -15,8 +13,12 @@ from insights import gerar_insights
 from pdf_report import gerar_pdf
 from fpdf import FPDF
 from textblob import TextBlob
+import urllib3
 
 
+
+# Esta deve ser a PRIMEIRA instrução do Streamlit no código
+st.set_page_config(page_title="Revenue Intelligence AI", layout="wide")
 st.set_page_config(layout="wide")
 
 # =============================
