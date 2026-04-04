@@ -247,37 +247,37 @@ if st.button("📄 Gerar PDF Executivo"):
     crescimento = ((melhor['score'] - pior['score']) / max(pior['score'],1)) * 100
 
     relatorio = f"""
-    RELATÓRIO ESTRATÉGICO DE PRESENÇA DIGITAL
+RELATÓRIO ESTRATÉGICO DE PRESENÇA DIGITAL
 
-    1. VISÃO GERAL
-    Foi realizada uma análise comparativa entre os sites avaliados.
-    O melhor desempenho foi identificado em {melhor['url']} com score {melhor['score']}.
-    O pior desempenho foi identificado em {pior['url']} com score {pior['score']}.
+1. VISÃO GERAL
+Foi realizada uma análise comparativa entre os sites avaliados.
+O melhor desempenho foi identificado em {melhor['url']} com score {melhor['score']}.
+O pior desempenho foi identificado em {pior['url']} com score {pior['score']}.
 
-    2. DIAGNÓSTICO
-    Foram identificados gargalos críticos:
-    - Baixa otimização de SEO
-    - Falta de rastreamento de marketing
-    - Performance técnica abaixo do ideal
+2. DIAGNÓSTICO
+Foram identificados gargalos críticos:
+- Baixa otimização de SEO
+- Falta de rastreamento de marketing
+- Performance técnica abaixo do ideal
 
-    3. IMPACTO NO NEGÓCIO
-    Esses problemas impactam diretamente:
-    - Aumento do CAC
-    - Redução da taxa de conversão
-    - Perda de receita potencial
+3. IMPACTO NO NEGÓCIO
+Esses problemas impactam diretamente:
+- Aumento do CAC
+- Redução da taxa de conversão
+- Perda de receita potencial
 
-    4. OPORTUNIDADE
-    Com otimização adequada, é possível um ganho estimado de até {round(crescimento,2)}% em performance digital.
+4. OPORTUNIDADE
+Com otimização adequada, é possível um ganho estimado de até {round(crescimento,2)}% em performance digital.
 
-    5. RECOMENDAÇÕES
-    - Implementar tracking (Google + Meta)
-    - Otimizar velocidade do site
-    - Melhorar SEO
-    - Criar páginas de conversão
+5. RECOMENDAÇÕES
+- Implementar tracking (Google + Meta)
+- Otimizar velocidade do site
+- Melhorar SEO
+- Criar páginas de conversão
 
-    6. CONCLUSÃO
-    Existe uma oportunidade clara de crescimento com impacto direto no faturamento.
-    """
+6. CONCLUSÃO
+Existe uma oportunidade clara de crescimento com impacto direto no faturamento.
+"""
 
     return relatorio
 # =========================================
