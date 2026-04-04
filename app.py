@@ -208,6 +208,11 @@ with aba6:
         resultados = []
 
         for url in urls:
+            
+    termo_limpo = url.replace("https://", "").replace("http://", "").replace("www.", "").split('/')[0]
+    link_ads_corrigido = f"https://facebook.com{termo_limpo}&country=BR"
+    
+    st.link_button(f"🔍 Ver Criativos Reais: {termo_limpo}", link_ads_corrigido)
             with st.spinner(f"Analisando Big Data: {url}..."):
                 res = realizar_auditoria_master(url)
                 if res: 
