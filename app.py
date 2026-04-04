@@ -241,12 +241,12 @@ if st.button("📄 Gerar PDF Executivo"):
         # 💰 RELATÓRIO EXECUTIVO
         # =========================
         def gerar_relatorio_ia(df_sites):
-    melhor = df_sites.sort_values("score", ascending=False).iloc[0]
-    pior = df_sites.sort_values("score").iloc[0]
+            melhor = df_sites.sort_values("score", ascending=False).iloc[0]
+            pior = df_sites.sort_values("score").iloc[0]
 
-    crescimento = ((melhor['score'] - pior['score']) / max(pior['score'],1)) * 100
+            crescimento = ((melhor['score'] - pior['score']) / max(pior['score'],1)) * 100
 
-    relatorio = f"""
+            relatorio = f"""
 RELATÓRIO ESTRATÉGICO DE PRESENÇA DIGITAL
 
 1. VISÃO GERAL
