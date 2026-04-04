@@ -13,15 +13,17 @@ from pdf_report import gerar_pdf
 
 st.set_page_config(layout="wide")
 
-# LOGIN
+# =============================
+# 🔐 LOGIN
+# =============================
 if not login():
     st.stop()
 
 st.title(f"🚀 Revenue Intelligence AI | {st.session_state['empresa']}")
 
-# =========================================
-# 📂 UPLOAD OU SIMULAÇÃO
-# =========================================
+# =============================
+# 📂 DADOS
+# =============================
 file = st.file_uploader("Upload de dados (CSV)")
 
 if file:
@@ -35,9 +37,9 @@ else:
         'custo': np.random.randint(500,5000,200)
     })
 
-# =========================================
-# 📊 ABAS COMPLETAS
-# =========================================
+# =============================
+# 📊 ABAS
+# =============================
 aba1, aba2, aba3, aba4, aba5, aba6, aba7 = st.tabs([
     "📊 Visão Geral",
     "📈 Marketing",
@@ -48,9 +50,9 @@ aba1, aba2, aba3, aba4, aba5, aba6, aba7 = st.tabs([
     "🤖 IA"
 ])
 
-# =========================================
+# =============================
 # 📊 VISÃO GERAL
-# =========================================
+# =============================
 with aba1:
     receita = df['valor'].sum()
     custo = df['custo'].sum()
@@ -71,9 +73,9 @@ with aba1:
     fig = px.bar(df, x='campanha', y='valor', color='campanha')
     st.plotly_chart(fig, use_container_width=True)
 
-# =========================================
+# =============================
 # 📈 MARKETING
-# =========================================
+# =============================
 with aba2:
     df_group = df.groupby('campanha').sum().reset_index()
     df_group['ROAS'] = df_group['valor'] / df_group['custo']
@@ -84,21 +86,21 @@ with aba2:
     fig = px.bar(df_group, x='campanha', y='ROAS')
     st.plotly_chart(fig, use_container_width=True)
 
-# =========================================
+# =============================
 # 🔻 FUNIL
-# =========================================
+# =============================
 with aba3:
     funil = pd.DataFrame({
         'Etapa': ['Cliques','Reservas'],
-        'Valor': [cliques, reservas]
+        'Valor': [df['cliques'].sum(), df['reservas'].sum()]
     })
 
     fig = px.funnel(funil, x='Valor', y='Etapa')
     st.plotly_chart(fig, use_container_width=True)
 
-# =========================================
-# 🔮 SIMULADOR PROFISSIONAL
-# =========================================
+# =============================
+# 🔮 SIMULADOR
+# =============================
 with aba4:
     investimento = st.number_input("Investimento", value=10000)
     cpc = st.number_input("CPC", value=2.0)
@@ -113,59 +115,26 @@ with aba4:
     col2.metric("Lucro", f"R$ {res['lucro']:,.0f}")
     col3.metric("ROI", round(res['roi'],2))
 
-# =========================================
-# 👥 CRM / CHURN
-# =========================================
+# =============================
+# 👥 CRM
+# =============================
 with aba5:
     df = modelo_churn(df)
 
     fig = px.pie(df, names='churn_pred')
     st.plotly_chart(fig)
 
-# =========================================
-# 🌐 URL
-# =========================================
+# =============================
+# 🌐 URL INTELIGENTE
+# =============================
 with aba6:
-    relatorio_ia = gerar_relatorio_ia(df_sites)
 
-st.text_area("Relatório IA", relatorio_ia, height=300)
-
-st.markdown("## 📱 Análise de Instagram")
-
-insta_url = st.text_input("Digite URL do Instagram")
-
-if insta_url:
-    try:
-        r = requests.get(insta_url, verify=False)
-        soup = BeautifulSoup(r.text, 'html.parser')
-
-        title = soup.title.string if soup.title else ""
-
-        st.write("Perfil:", title)
-
-        if "followers" in r.text:
-            st.success("Perfil com presença ativa")
-
-        st.info("💡 Recomendações:")
-        st.write("- Melhorar frequência de posts")
-        st.write("- Usar mais vídeos (Reels)")
-        st.write("- Criar campanhas de tráfego")
-
-    except:
-        st.error("Erro ao analisar Instagram")
-
-if st.button("📄 Gerar PDF Executivo"):
-    gerar_pdf(relatorio_ia)
-
-    with open("relatorio.pdf", "rb") as f:
-        st.download_button("⬇️ Baixar PDF", f, file_name="relatorio.pdf")
-    st.markdown("## 🌐 Diagnóstico Inteligente de Sites (Nível Consultoria)")
+    st.markdown("## 🌐 Diagnóstico Inteligente de Sites")
 
     urls_input = st.text_area("Digite URLs (uma por linha)")
 
     if urls_input:
         urls = urls_input.split("\n")
-
         resultados = []
 
         for url in urls:
@@ -186,16 +155,12 @@ if st.button("📄 Gerar PDF Executivo"):
 
                 tamanho = len(r.content) / 1024
 
-                # =========================
-                # 🎯 SCORE
-                # =========================
                 score = 0
-
                 if title: score += 20
                 if description: score += 20
                 if len(h1) > 0: score += 20
-                if usa_google: score += 15
-                if usa_meta: score += 15
+                if usa_google: score += 20
+                if usa_meta: score += 10
                 if tamanho < 2000: score += 10
 
                 resultados.append({
@@ -204,8 +169,6 @@ if st.button("📄 Gerar PDF Executivo"):
                     "titulo": title,
                     "description": description,
                     "performance_kb": round(tamanho,2),
-                    "google": usa_google,
-                    "meta": usa_meta
                 })
 
             except:
@@ -213,76 +176,46 @@ if st.button("📄 Gerar PDF Executivo"):
 
         df_sites = pd.DataFrame(resultados)
 
-        # =========================
-        # 📊 COMPARAÇÃO
-        # =========================
-        st.markdown("## 📊 Benchmark de Concorrentes")
-
         st.dataframe(df_sites)
 
         fig = px.bar(df_sites, x='url', y='score', color='score')
         st.plotly_chart(fig, use_container_width=True)
 
-        # =========================
-        # 🧠 DIAGNÓSTICO AUTOMÁTICO
-        # =========================
-        melhor = df_sites.sort_values("score", ascending=False).iloc[0]
-        pior = df_sites.sort_values("score").iloc[0]
-
-        st.markdown("## 🧠 Diagnóstico Estratégico")
-
-        st.write(f"🏆 Melhor site: {melhor['url']} (Score {melhor['score']})")
-        st.write(f"⚠️ Pior site: {pior['url']} (Score {pior['score']})")
-
-        if pior['score'] < 60:
-            st.error("Site com alto risco de baixa conversão")
-
-        # =========================
-        # 💰 RELATÓRIO EXECUTIVO
-        # =========================
+        # =============================
+        # 🧠 RELATÓRIO IA
+        # =============================
         def gerar_relatorio_ia(df_sites):
             melhor = df_sites.sort_values("score", ascending=False).iloc[0]
             pior = df_sites.sort_values("score").iloc[0]
 
-            crescimento = ((melhor['score'] - pior['score']) / max(pior['score'],1)) * 100
+            return f"""
+🏆 Melhor: {melhor['url']} (Score {melhor['score']})
+⚠️ Pior: {pior['url']} (Score {pior['score']})
 
-            relatorio = f"""
-RELATÓRIO ESTRATÉGICO DE PRESENÇA DIGITAL
+Problemas:
+- SEO fraco
+- Baixa conversão
+- Falta de tracking
 
-1. VISÃO GERAL
-Foi realizada uma análise comparativa entre os sites avaliados.
-O melhor desempenho foi identificado em {melhor['url']} com score {melhor['score']}.
-O pior desempenho foi identificado em {pior['url']} com score {pior['score']}.
-
-2. DIAGNÓSTICO
-Foram identificados gargalos críticos:
-- Baixa otimização de SEO
-- Falta de rastreamento de marketing
-- Performance técnica abaixo do ideal
-
-3. IMPACTO NO NEGÓCIO
-Esses problemas impactam diretamente:
-- Aumento do CAC
-- Redução da taxa de conversão
-- Perda de receita potencial
-
-4. OPORTUNIDADE
-Com otimização adequada, é possível um ganho estimado de até {round(crescimento,2)}% em performance digital.
-
-5. RECOMENDAÇÕES
-- Implementar tracking (Google + Meta)
-- Otimizar velocidade do site
-- Melhorar SEO
-- Criar páginas de conversão
-
-6. CONCLUSÃO
-Existe uma oportunidade clara de crescimento com impacto direto no faturamento.
+Recomendações:
+- Implementar Google + Meta Pixel
+- Melhorar velocidade
+- Criar landing pages
 """
 
-    return relatorio
-# =========================================
-# 🤖 IA / PREVISÃO + INSIGHTS
-# =========================================
+        relatorio = gerar_relatorio_ia(df_sites)
+
+        st.text_area("Relatório Estratégico", relatorio, height=250)
+
+        if st.button("📄 Gerar PDF"):
+            gerar_pdf(relatorio)
+
+            with open("relatorio.pdf", "rb") as f:
+                st.download_button("⬇️ Baixar PDF", f)
+
+# =============================
+# 🤖 IA
+# =============================
 with aba7:
     df = previsao_receita(df)
 
